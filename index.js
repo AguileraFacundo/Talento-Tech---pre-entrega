@@ -14,23 +14,22 @@ try {
       if (productQuery && productQuery.startsWith("products/")) {
         const idString = productQuery.split("/")[1];
 
-        fetch(`https://fakestoreapi.com/products/${idString}`)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Error: Producto no encontrado");
-            }
-            return response.json();
-          })
-          .then((data) => console.log(data))
-          .catch((err) => {
-            console.log(`Error: ${err.message}`);
-          });
+        const response = await fetch(
+          `https://fakestoreapi.com/products/${idString}`
+        );
+        if (!response.ok) {
+          throw new Error("Producto no encontrado");
+        }
+        const data = await response.json();
+        console.log(data);
         break;
       } else if (productQuery == "products") {
-        fetch("https://fakestoreapi.com/products")
-          .then((response) => response.json())
-          .then((data) => console.log(data))
-          .catch((err) => console.log(`Error: ${err.message}`));
+        const response = await fetch("https://fakestoreapi.com/products");
+        if (!response.ok) {
+          throw new Error("Error: productos no encontrados");
+        }
+        const data = await response.json();
+        console.log(data);
         break;
       } else {
         console.log("Error: Argumento no reconocido");
@@ -45,18 +44,16 @@ try {
         price: Number(price),
         category: category,
       };
-      fetch("https://fakestoreapi.com/products", {
+      const response = await fetch("https://fakestoreapi.com/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Error al crear un producto");
-          }
-          return response.json();
-        })
-        .then((data) => console.log(data));
+      });
+      if (!response.ok) {
+        throw new Error("Falló la creación del producto");
+      }
+      const data = await response.json();
+      console.log(data);
       break;
     }
     case "delete": {
@@ -64,16 +61,18 @@ try {
 
       if (productQuery && productQuery.startsWith("products/")) {
         const idString = productQuery.split("/")[1];
-        fetch(`https://fakestoreapi.com/products/${idString}`, {
-          method: "DELETE",
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Producto eliminado!");
-            console.log(data);
-          })
-          .catch((err) => console.log(`Error: ${err.message}`));
-
+        const response = await fetch(
+          `https://fakestoreapi.com/products/${idString}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!response.ok) {
+          throw new Error("No se pudo eliminar el producto");
+        }
+        const data = await response.json();
+        console.log("Producto eliminado");
+        console.log(data);
         break;
       } else {
         console.log("Eror: Para eliminar un producto use products/<id>");
@@ -87,5 +86,5 @@ try {
     }
   }
 } catch (err) {
-  console.log(`Error inesperado: ${err.message}`);
+  console.log(`Error: ${err.message}`);
 }
